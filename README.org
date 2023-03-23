@@ -1,0 +1,7 @@
+***** Parsing .desktop files
+This is mainly applicable to a minimalist AntiX setup. The end goal is
+to generate a Fluxbox menu with applications found in /usr/share/applications.
+
+This code returns a list pairing desktop files (found in
+/usr/share/applications) with a list of assigned categories, which
+presumably are used to locate that application within a WM/DE menu.
