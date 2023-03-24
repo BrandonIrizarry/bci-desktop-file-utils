@@ -73,7 +73,7 @@ Else return NIL."
 
 ;; See how many of each category I have
 (mapcar (lambda (thing)
-          (length (cadr thing)))
+          (length (nth 1 thing)))
         (mapcar (lambda (category)
                   (cons category
                         (list (bci-find-all-applications-of-type category))))
