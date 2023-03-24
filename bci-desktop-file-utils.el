@@ -64,17 +64,19 @@ Else return NIL."
   "A list of main menu categories for the Freedesktop menu spec.")
 
 ;; Should be updated every time a menu is generated
-(setq *all-desktop-files* (bci-parse-all-desktop-files))
+(setq *all-desktop-files* (bci-collect-all-desktop-objects))
 
 (defun bci-find-all-applications-of-type (query)
-  (seq-filter (pcase-lambda (`(,_ ,categories))
-                (seq-find (lambda (c) (string-match query c)) categories))
+  (seq-filter (lambda (desktop-object)
+                (bci-desktop-object-category-p desktop-object query))
               *all-desktop-files*))
 
-(mapcar (lambda (type)
-          (let* ((apps (bci-find-all-applications-of-type type))
-                 (names (mapcar #'car apps)))
-            (cons type (list names))))
-        *xdg-main-categories*)
+;; See how many of each category I have
+(mapcar (lambda (thing)
+          (length (cadr thing)))
+        (mapcar (lambda (category)
+                  (cons category
+                        (list (bci-find-all-applications-of-type category))))
+                *xdg-main-categories*))
 
 (provide 'bci-desktop-file-utils)
