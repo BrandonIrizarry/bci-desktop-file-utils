@@ -1,5 +1,15 @@
 ; -*- lexical-binding: t -*-
 
+(defun --bci-isolate-desktop-field (filename fieldname)
+  "Return line in desktop file corresponding to a given key (for
+  example,\"Exec\", \"Categories\"."
+  (with-temp-buffer
+    (insert-file-contents filename)
+    (re-search-forward (format "^\\(%s\\)=\\(.+\\)" fieldname))
+    (list
+     (match-string 1)
+     (match-string 2))))
+
 ;;;###autoload
 (defun bci-parse-all-desktop-files ()
   "Proof of concept function that reads the filesystem for
@@ -20,5 +30,36 @@ The idea is to eventually make a tool that generates a Fluxbox menu."
                    (categories-tokens (butlast (split-string raw-categories ";"))))
               (push (cons desktop-file (list categories-tokens)) main-list))))
         ))))
+
+;; https://specifications.freedesktop.org/menu-spec/menu-spec-1.0.html
+;; https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html
+
+(defvar *xdg-main-categories* '("AudioVideo"
+                                "Audio"
+                                "Video"
+                                "Development"
+                                "Education"
+                                "Game"
+                                "Graphics"
+                                "Network"
+                                "Office"
+                                "Settings"
+                                "System"
+                                "Utility")
+  "A list of main menu categories for the Freedesktop menu spec.")
+
+;; Should be updated every time a menu is generated
+(setq *all-desktop-files* (bci-parse-all-desktop-files))
+
+(defun bci-find-all-applications-of-type (query)
+  (seq-filter (pcase-lambda (`(,_ ,categories))
+                (seq-find (lambda (c) (string-match query c)) categories))
+              *all-desktop-files*))
+
+(mapcar (lambda (type)
+          (let* ((apps (bci-find-all-applications-of-type type))
+                 (names (mapcar #'car apps)))
+            (cons type (list names))))
+        *xdg-main-categories*)
 
 (provide 'bci-desktop-file-utils)
