@@ -30,6 +30,21 @@ The idea is to eventually make a tool that generates a Fluxbox menu."
     (dolist (desktop-file (directory-files "/usr/share/applications" t "^.+\.desktop$") main-list)
       (push (--bci-create-desktop-object desktop-file "Exec" "Categories") main-list))))
 
+;;;###autoload
+(defun bci-desktop-object-category-p (desktop-object category)
+  "Return CATEGORY iff DESKTOP-OBJECT contains CATEGORY among its category values.
+
+Else return NIL."
+  ;; Some applications don't have a "Categories" field, so use WHEN-LET
+  (when-let ((categories (plist-get desktop-object :categories)))
+    (with-temp-buffer
+      (save-excursion
+        (insert categories)
+        (let ((regexp (format "\\(^\\|;\\)\\(%s\\);" category)))
+          (when (string-match regexp categories)
+            (match-string 2 categories)))))))
+
+(bci-desktop-object-category-p (--bci-create-desktop-object "/usr/share/applications/firefox.desktop" "Categories" "Exec") "Network")
 
 ;; https://specifications.freedesktop.org/menu-spec/menu-spec-1.0.html
 ;; https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html
