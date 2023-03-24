@@ -71,12 +71,20 @@ Else return NIL."
                 (bci-desktop-object-category-p desktop-object query))
               *all-desktop-files*))
 
+(defun bci-build-desktop-database ()
+  (mapcar (lambda (category)
+            (cons category
+                  (list (bci-find-all-applications-of-type category))))
+          *xdg-main-categories*))
+
+(setq *desktop-database* (bci-build-desktop-database))
+
 ;; See how many of each category I have
 (mapcar (lambda (thing)
           (length (nth 1 thing)))
-        (mapcar (lambda (category)
-                  (cons category
-                        (list (bci-find-all-applications-of-type category))))
-                *xdg-main-categories*))
+        *desktop-database*)
+
+;; Fetch the Development-category members treating the database as an alist
+(alist-get "Development" *desktop-database* nil nil #'string=)
 
 (provide 'bci-desktop-file-utils)
