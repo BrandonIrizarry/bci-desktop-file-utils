@@ -1,15 +1,23 @@
 ; -*- lexical-binding: t -*-
 
 ;;;###autoload
-(defun --bci-isolate-desktop-field (filename fieldname)
-  "Return line in desktop file corresponding to a given key (for
-  example,\"Exec\", \"Categories\"."
+(defun --bci-create-desktop-object (filename &rest fieldnames)
+  "Return a \"desktop object\", a plist based on the given
+  key-value pairs implied by FIELDNAMES, e.g.:
+
+(:exec \"firefox %u\"
+ :categories \"Network;WebBrowser;\")
+"
   (with-temp-buffer
     (insert-file-contents filename)
-    (re-search-forward (format "^\\(%s\\)=\\(.+\\)" fieldname))
-    (list
-     (intern (format ":%s" (downcase (match-string 1))))
-     (match-string 2))))
+    (let (desktop-object)
+      (dolist (name fieldnames (apply #'append desktop-object))
+        (beginning-of-buffer)
+        (when (re-search-forward (format "^\\(%s\\)=\\(.+\\)" name) nil t)
+          (push (list
+                 (intern (format ":%s" (downcase (match-string 1))))
+                 (match-string 2))
+                desktop-object))))))
 
 ;;;###autoload
 (defun bci-parse-all-desktop-files ()
