@@ -10,14 +10,15 @@
 "
   (with-temp-buffer
     (insert-file-contents filename)
-    (let (desktop-object)
-      (dolist (name fieldnames (apply #'append desktop-object))
+    (let ((key-value-pairs (list :name filename)))
+      (dolist (name fieldnames key-value-pairs)
         (beginning-of-buffer)
         (when (re-search-forward (format "^\\(%s\\)=\\(.+\\)" name) nil t)
-          (push (list
-                 (intern (format ":%s" (downcase (match-string 1))))
-                 (match-string 2))
-                desktop-object))))))
+          ;; Push a desktop object to DESKTOP-OBJECTS
+          (let* ((key (intern (format ":%s" (downcase (match-string 1))))))
+            ;; Modify KEY-VALUE-PAIRS in place
+            ;; See documentation for NCONC in Elisp manual
+            (nconc key-value-pairs (list key (match-string 2)))))))))
 
 ;;;###autoload
 (defun bci-parse-all-desktop-files ()
