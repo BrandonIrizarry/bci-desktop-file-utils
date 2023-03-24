@@ -10,7 +10,7 @@
 "
   (with-temp-buffer
     (insert-file-contents filename)
-    (let ((key-value-pairs (list :name filename)))
+    (let ((key-value-pairs (list :filename filename)))
       (dolist (name fieldnames key-value-pairs)
         (beginning-of-buffer)
         (when (re-search-forward (format "^\\(%s\\)=\\(.+\\)" name) nil t)
@@ -44,7 +44,7 @@ Else return NIL."
           (when (string-match regexp categories)
             (match-string 2 categories)))))))
 
-(bci-desktop-object-category-p (--bci-create-desktop-object "/usr/share/applications/firefox.desktop" "Categories" "Exec") "Network")
+(bci-desktop-object-category-p (--bci-create-desktop-object "/usr/share/applications/firefox.desktop" "Categories" "Exec" "Name") "Network")
 
 ;; https://specifications.freedesktop.org/menu-spec/menu-spec-1.0.html
 ;; https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html
