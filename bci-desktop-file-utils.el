@@ -1,5 +1,6 @@
 ; -*- lexical-binding: t -*-
 
+;;;###autoload
 (defun --bci-isolate-desktop-field (filename fieldname)
   "Return line in desktop file corresponding to a given key (for
   example,\"Exec\", \"Categories\"."
@@ -7,7 +8,7 @@
     (insert-file-contents filename)
     (re-search-forward (format "^\\(%s\\)=\\(.+\\)" fieldname))
     (list
-     (match-string 1)
+     (intern (format ":%s" (downcase (match-string 1))))
      (match-string 2))))
 
 ;;;###autoload
